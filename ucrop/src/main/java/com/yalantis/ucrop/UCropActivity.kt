@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Bitmap.CompressFormat
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
+import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Animatable
@@ -12,19 +13,20 @@ import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
@@ -34,6 +36,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
@@ -54,6 +57,7 @@ import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView
 import com.yalantis.ucrop.view.widget.HorizontalProgressWheelView.ScrollingListener
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.math.roundToInt
 
 
 /**
@@ -72,7 +76,6 @@ class UCropActivity : AppCompatActivity() {
 
     // Enables dynamic coloring
     private var mToolbarColor = 0
-    private var mStatusBarColor = 0
     private var mActiveControlsWidgetColor = 0
     private var mToolbarWidgetColor = 0
 
@@ -119,7 +122,16 @@ class UCropActivity : AppCompatActivity() {
     private var mCompressQuality = DEFAULT_COMPRESS_QUALITY
     private var mAllowedGestures = intArrayOf(SCALE, ROTATE, ALL)
     public override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        mToolbarColor = intent.getIntExtra(
+            UCrop.Options.EXTRA_TOOL_BAR_COLOR,
+            ContextCompat.getColor(this, R.color.ucrop_color_toolbar)
+        )
+        enableEdgeToEdge(
+            SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT){
+                ColorUtils.calculateLuminance(mToolbarColor) < 0.5
+            },
+            SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT)
+        )
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.ucrop_activity_photobox)
@@ -133,16 +145,29 @@ class UCropActivity : AppCompatActivity() {
     }
 
     private fun setupEdgeToEdge() {
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById<ViewGroup>(R.id.ucrop_photobox)) { v, windowInsets ->
+        val toolbar = mToolbarView ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(toolbar.parent as View) { v, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                rightMargin = insets.right
-                topMargin = insets.top
-                bottomMargin = insets.bottom
+            val tv = TypedValue()
+            val actionBarHeight = if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
+                TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+            } else {
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 56f, resources.displayMetrics).roundToInt()
             }
-
+            toolbar.updateLayoutParams {
+                height = actionBarHeight + insets.top
+            }
+            toolbar.setPadding(insets.left, insets.top, insets.right, 0)
+            val controls = v.findViewById<View>(R.id.wrapper_states)
+            if (controls != null) {
+                controls.updateLayoutParams {
+                    height = resources.getDimensionPixelSize(R.dimen.ucrop_height_wrapper_states) + insets.bottom
+                }
+                controls.setPadding(0, 0, 0, insets.bottom)
+            } else {
+                v.setPadding(0, 0, 0, insets.bottom)
+            }
             windowInsets
         }
     }
@@ -405,10 +430,6 @@ class UCropActivity : AppCompatActivity() {
     }
 
     private fun setupViews(intent: Intent) {
-        mStatusBarColor = intent.getIntExtra(
-            UCrop.Options.EXTRA_STATUS_BAR_COLOR,
-            ContextCompat.getColor(this, R.color.ucrop_color_statusbar)
-        )
         mToolbarColor = intent.getIntExtra(
             UCrop.Options.EXTRA_TOOL_BAR_COLOR,
             ContextCompat.getColor(this, R.color.ucrop_color_toolbar)
@@ -493,7 +514,6 @@ class UCropActivity : AppCompatActivity() {
      * Configures and styles both status bar and toolbar.
      */
     private fun setupAppBar() {
-        setStatusBarColor(mStatusBarColor)
         mToolbarView = findViewById(R.id.toolbar)
 
         // Set all of the Toolbar coloring
@@ -644,19 +664,6 @@ class UCropActivity : AppCompatActivity() {
                 mActiveControlsWidgetColor
             )
         )
-    }
-
-    /**
-     * Sets status-bar color for L devices.
-     *
-     * @param color - status-bar color
-     */
-    private fun setStatusBarColor(@ColorInt color: Int) {
-        val window = window
-        if (window != null) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
-            window.statusBarColor = color
-        }
     }
 
     private fun setupAspectRatioWidget(intent: Intent) {

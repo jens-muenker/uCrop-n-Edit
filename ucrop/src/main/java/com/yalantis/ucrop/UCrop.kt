@@ -478,6 +478,7 @@ class UCrop private constructor(source: Uri, destination: Uri) {
             const val EXTRA_CROP_GRID_CORNER_COLOR = "$EXTRA_PREFIX.CropGridCornerColor"
             const val EXTRA_CROP_GRID_STROKE_WIDTH = "$EXTRA_PREFIX.CropGridStrokeWidth"
             const val EXTRA_TOOL_BAR_COLOR = "$EXTRA_PREFIX.ToolbarColor"
+            @Deprecated("statusBarColor does not work on Android 15+")
             const val EXTRA_STATUS_BAR_COLOR = "$EXTRA_PREFIX.StatusBarColor"
             const val EXTRA_UCROP_COLOR_CONTROLS_WIDGET_ACTIVE =
                 "$EXTRA_PREFIX.UcropColorControlsWidgetActive"
