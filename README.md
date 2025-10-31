@@ -107,6 +107,15 @@ If you have any ideas for uCrop'n'Edit, feel free to let me know. I will try my 
 
 # Changelog
 
+**4.1.1-non-native**
+- added wrapper controls color: https://github.com/jens-muenker/uCrop-n-Edit/issues/35
+- fixed https://github.com/jens-muenker/uCrop-n-Edit/issues/37
+- updated dependencies and gradle
+
+**4.1.1**
+- added wrapper controls color: https://github.com/jens-muenker/uCrop-n-Edit/issues/35
+- updated dependencies and gradle
+
 **4.1.0-non-native**
 - fixed https://github.com/jens-muenker/uCrop-n-Edit/issues/32
 - refactored code

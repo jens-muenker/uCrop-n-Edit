@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.Animatable
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -82,6 +83,9 @@ class UCropActivity : AppCompatActivity() {
 
     @ColorInt
     private var mRootViewBackgroundColor = 0
+
+    @ColorInt
+    private var mWrapperControlsColor = 0
 
     @DrawableRes
     private var mToolbarCancelDrawable = 0
@@ -536,6 +540,11 @@ class UCropActivity : AppCompatActivity() {
                 UCrop.Options.EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR,
                 ContextCompat.getColor(this, R.color.ucrop_color_crop_background),
             )
+        mWrapperControlsColor =
+            intent.getIntExtra(
+                UCrop.Options.EXTRA_UCROP_WRAPPER_CONTROLS_COLOR,
+                ContextCompat.getColor(this, R.color.ucrop_color_wrapper_controls),
+            )
         setupAppBar()
         initiateRootViews()
         if (mShowBottomControls) {
@@ -543,6 +552,26 @@ class UCropActivity : AppCompatActivity() {
             val wrapper = viewGroup.findViewById<ViewGroup>(R.id.controls_wrapper)
             wrapper.visibility = View.VISIBLE
             LayoutInflater.from(this).inflate(R.layout.ucrop_controls, wrapper, true)
+            // Set wrapper controls color
+            val wrapperControls = findViewById<FrameLayout>(R.id.wrapper_controls)
+            val wrapperControlsBackground = wrapperControls?.getChildAt(0) as? ImageView
+            wrapperControlsBackground?.let { imageView ->
+                val cornerRadius = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    12f,
+                    resources.displayMetrics
+                )
+                val drawable = GradientDrawable().apply {
+                    cornerRadii = floatArrayOf(
+                        cornerRadius, cornerRadius, // topLeft X, Y
+                        cornerRadius, cornerRadius, // topRight X, Y
+                        0f, 0f, // bottomRight X, Y
+                        0f, 0f, // bottomLeft X, Y
+                    )
+                    setColor(mWrapperControlsColor)
+                }
+                imageView.background = drawable
+            }
             mControlsTransition = AutoTransition()
             mControlsTransition!!.setDuration(CONTROLS_ANIMATION_DURATION)
             mWrapperStateAspectRatio = findViewById(R.id.state_aspect_ratio)
