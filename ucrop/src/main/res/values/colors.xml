@@ -24,6 +24,7 @@
     <color name="ucrop_color_widget_text">@color/ucrop_color_blaze_orange</color>
     <color name="ucrop_color_progress_wheel_line">@color/ucrop_color_ebony_clay</color>
     <color name="ucrop_color_crop_background">@color/ucrop_color_black</color>
+    <color name="ucrop_color_wrapper_controls">@color/ucrop_color_white</color>
 
     <!--Crop View-->
     <color name="ucrop_color_default_crop_grid">#80ffffff</color>
