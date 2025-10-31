@@ -14,6 +14,8 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicConvolve3x3
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import com.yalantis.ucrop.callback.BitmapCropCallback
 import com.yalantis.ucrop.model.CropParameters
@@ -94,7 +96,8 @@ class BitmapCropTask(
 
             if (mBrightness != 0.0f || mContrast != 0.0f || mSaturation != 0.0f || mSharpness != 0.0f) {
                 val sourceBitmap = BitmapFactory.decodeFile(mImageOutputPath)
-                val alteredBitmap = Bitmap.createBitmap(sourceBitmap.width, sourceBitmap.height, sourceBitmap.config!!)
+                val alteredBitmap =
+                    createBitmap(sourceBitmap.width, sourceBitmap.height, sourceBitmap.config!!)
 
                 val cm = ColorMatrix().apply {
                     ColorFilterGenerator.adjustBrightness(this, mBrightness)
@@ -185,8 +188,7 @@ class BitmapCropTask(
             val cropHeight = mCropRect.height() / mCurrentScale
 
             if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
-                mViewBitmap = Bitmap.createScaledBitmap(
-                    mViewBitmap!!,
+                mViewBitmap = mViewBitmap!!.scale(
                     (mViewBitmap!!.width * resizeScale).toInt(),
                     (mViewBitmap!!.height * resizeScale).toInt(),
                     false
@@ -208,10 +210,53 @@ class BitmapCropTask(
             }
         }
 
-        cropOffsetX = ((mCropRect.left - mCurrentImageRect.left) / mCurrentScale).toInt()
-        cropOffsetY = ((mCropRect.top - mCurrentImageRect.top) / mCurrentScale).toInt()
-        mCroppedImageWidth = (mCropRect.width() / mCurrentScale).toInt()
-        mCroppedImageHeight = (mCropRect.height() / mCurrentScale).toInt()
+        // Get actual bitmap dimensions after rotation
+        val bitmapWidth = mViewBitmap!!.width
+        val bitmapHeight = mViewBitmap!!.height
+        
+        // Calculate the scale between view coordinates and bitmap coordinates
+        // The bitmap might have changed size after rotation, so we need to calculate the scale
+        // based on the actual current image rect dimensions
+        val viewToBitmapScaleX = bitmapWidth / mCurrentImageRect.width()
+        val viewToBitmapScaleY = bitmapHeight / mCurrentImageRect.height()
+        
+        // Calculate crop coordinates in bitmap space
+        // mCropRect and mCurrentImageRect are in view coordinates
+        val cropLeftInView = mCropRect.left - mCurrentImageRect.left
+        val cropTopInView = mCropRect.top - mCurrentImageRect.top
+        
+        // Convert from view coordinates to bitmap coordinates
+        cropOffsetX = (cropLeftInView * viewToBitmapScaleX).toInt()
+        cropOffsetY = (cropTopInView * viewToBitmapScaleY).toInt()
+        mCroppedImageWidth = (mCropRect.width() * viewToBitmapScaleX).toInt()
+        mCroppedImageHeight = (mCropRect.height() * viewToBitmapScaleY).toInt()
+
+        // Validate and clamp crop values to ensure they are within bitmap bounds
+        // Ensure cropOffsetX and cropOffsetY are non-negative
+        cropOffsetX = max(0, cropOffsetX)
+        cropOffsetY = max(0, cropOffsetY)
+        
+        // Ensure cropOffsetX + width doesn't exceed bitmap bounds
+        // If cropOffsetX is beyond bounds, adjust it and reduce width accordingly
+        if (cropOffsetX >= bitmapWidth) {
+            cropOffsetX = max(0, bitmapWidth - 1)
+            mCroppedImageWidth = 1
+        } else if (cropOffsetX + mCroppedImageWidth > bitmapWidth) {
+            mCroppedImageWidth = bitmapWidth - cropOffsetX
+        }
+        
+        // Ensure cropOffsetY + height doesn't exceed bitmap bounds
+        // If cropOffsetY is beyond bounds, adjust it and reduce height accordingly
+        if (cropOffsetY >= bitmapHeight) {
+            cropOffsetY = max(0, bitmapHeight - 1)
+            mCroppedImageHeight = 1
+        } else if (cropOffsetY + mCroppedImageHeight > bitmapHeight) {
+            mCroppedImageHeight = bitmapHeight - cropOffsetY
+        }
+        
+        // Ensure minimum dimensions (must be at least 1 pixel)
+        mCroppedImageWidth = max(1, mCroppedImageWidth)
+        mCroppedImageHeight = max(1, mCroppedImageHeight)
 
         val shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight)
 

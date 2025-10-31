@@ -8,11 +8,11 @@ ext {
 }
 
 android {
-    compileSdk 35
+    compileSdk = 36
 
     defaultConfig {
         minSdkVersion 21
-        targetSdk 35
+        targetSdk 36
 
         consumerProguardFiles 'proguard-consumer-rules.pro'
         vectorDrawables.useSupportLibrary = true
@@ -51,12 +51,12 @@ java {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.0.21'
-    implementation "androidx.appcompat:appcompat:1.7.0"
-    implementation 'androidx.exifinterface:exifinterface:1.4.0'
-    implementation "androidx.transition:transition:1.5.1"
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'androidx.activity:activity-ktx:1.10.1'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.0'
+    implementation "androidx.appcompat:appcompat:1.7.1"
+    implementation 'androidx.exifinterface:exifinterface:1.4.1'
+    implementation "androidx.transition:transition:1.6.0"
+    implementation 'com.squareup.okhttp3:okhttp:5.3.0'
+    implementation 'androidx.activity:activity-ktx:1.11.0'
 }
 
 apply from: 'publish.gradle'
