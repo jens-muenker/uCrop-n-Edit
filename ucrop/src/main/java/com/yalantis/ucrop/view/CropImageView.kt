@@ -130,7 +130,9 @@ open class CropImageView
             mCropRect[cropRect.left - paddingLeft, cropRect.top - paddingTop, cropRect.right - paddingRight] =
                 cropRect.bottom - paddingBottom
             calculateImageScaleBounds()
-            setImageToWrapCropBounds()
+            // Always wrap crop bounds when crop rect changes (e.g., aspect ratio changed)
+            // This ensures the image zooms to fit the new crop bounds even if it was previously within bounds
+            setImageToWrapCropBounds(true, true)
         }
 
         /**
@@ -271,7 +273,17 @@ open class CropImageView
          * crop bounds rectangle center. Using temporary variables this method checks this case.
          */
         fun setImageToWrapCropBounds(animate: Boolean) {
-            if (mBitmapLaidOut && !isImageWrapCropBounds) {
+            setImageToWrapCropBounds(animate, false)
+        }
+
+        /**
+         * If image doesn't fill the crop bounds it must be translated and scaled properly to fill those.
+         *
+         * @param animate - whether to animate the transition
+         * @param force - if true, forces zoom even if image is already within bounds (e.g., when aspect ratio changes)
+         */
+        private fun setImageToWrapCropBounds(animate: Boolean, force: Boolean) {
+            if (mBitmapLaidOut && (force || !isImageWrapCropBounds)) {
                 val currentX = mCurrentImageCenter[0]
                 val currentY = mCurrentImageCenter[1]
                 val currentScale = currentScale

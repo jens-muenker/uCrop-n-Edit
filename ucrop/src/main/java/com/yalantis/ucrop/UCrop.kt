@@ -456,6 +456,15 @@ class UCrop private constructor(
         }
 
         /**
+         * @param color - desired background color of the wrapper controls (default is white)
+         */
+        fun setWrapperControlsColor(
+            @ColorInt color: Int,
+        ) {
+            optionBundle.putInt(EXTRA_UCROP_WRAPPER_CONTROLS_COLOR, color)
+        }
+
+        /**
          * Set an aspect ratio for crop bounds.
          * User won't see the menu with other ratios options.
          *
@@ -561,6 +570,8 @@ class UCrop private constructor(
             const val EXTRA_ASPECT_RATIO_OPTIONS = "$EXTRA_PREFIX.AspectRatioOptions"
             const val EXTRA_UCROP_ROOT_VIEW_BACKGROUND_COLOR =
                 "$EXTRA_PREFIX.UcropRootViewBackgroundColor"
+            const val EXTRA_UCROP_WRAPPER_CONTROLS_COLOR =
+                "$EXTRA_PREFIX.UcropWrapperControlsColor"
             const val EXTRA_BRIGHTNESS = "$EXTRA_PREFIX.Brightness"
             const val EXTRA_CONTRAST = "$EXTRA_PREFIX.Contrast"
             const val EXTRA_SATURATION = "$EXTRA_PREFIX.Saturation"

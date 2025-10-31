@@ -77,6 +77,7 @@
     options.setToolbarWidgetColor(Int);  
     options.setRootViewBackgroundColor(Int);  
     options.setActiveControlsWidgetColor(Int);  
+    options.setWrapperControlsColor(Int);  
 
 
 ## Aspect ratio options
