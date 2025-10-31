@@ -29,6 +29,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.BlendModeColorFilterCompat
 import androidx.core.graphics.BlendModeCompat
+import androidx.core.net.toUri
 import com.yalantis.ucrop.UCrop
 import com.yalantis.ucrop.UCrop.Companion.getError
 import com.yalantis.ucrop.UCrop.Companion.getOutput
@@ -121,13 +122,11 @@ class SampleActivity : BaseActivity(), UCropFragmentCallback {
             val random = Random()
             val minSizePixels = 800
             val maxSizePixels = 2400
-            val uri = Uri.parse(
-                String.format(
-                    Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
-                    minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
-                    minSizePixels + random.nextInt(maxSizePixels - minSizePixels)
-                )
-            )
+            val uri = String.format(
+                Locale.getDefault(), "https://unsplash.it/%d/%d/?random",
+                minSizePixels + random.nextInt(maxSizePixels - minSizePixels),
+                minSizePixels + random.nextInt(maxSizePixels - minSizePixels)
+            ).toUri()
             startCrop(uri)
         }
         settingsView = findViewById(R.id.settings)
