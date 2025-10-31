@@ -14,6 +14,8 @@ import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicConvolve3x3
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import androidx.exifinterface.media.ExifInterface
 import com.yalantis.ucrop.callback.BitmapCropCallback
 import com.yalantis.ucrop.model.CropParameters
@@ -94,7 +96,8 @@ class BitmapCropTask(
 
             if (mBrightness != 0.0f || mContrast != 0.0f || mSaturation != 0.0f || mSharpness != 0.0f) {
                 val sourceBitmap = BitmapFactory.decodeFile(mImageOutputPath)
-                val alteredBitmap = Bitmap.createBitmap(sourceBitmap.width, sourceBitmap.height, sourceBitmap.config!!)
+                val alteredBitmap =
+                    createBitmap(sourceBitmap.width, sourceBitmap.height, sourceBitmap.config!!)
 
                 val cm = ColorMatrix().apply {
                     ColorFilterGenerator.adjustBrightness(this, mBrightness)
@@ -185,8 +188,7 @@ class BitmapCropTask(
             val cropHeight = mCropRect.height() / mCurrentScale
 
             if (cropWidth > mMaxResultImageSizeX || cropHeight > mMaxResultImageSizeY) {
-                mViewBitmap = Bitmap.createScaledBitmap(
-                    mViewBitmap!!,
+                mViewBitmap = mViewBitmap!!.scale(
                     (mViewBitmap!!.width * resizeScale).toInt(),
                     (mViewBitmap!!.height * resizeScale).toInt(),
                     false
