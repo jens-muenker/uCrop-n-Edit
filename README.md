@@ -21,6 +21,11 @@ This repository is a fork of <a href="https://github.com/krokyze/uCrop-n-Edit">u
 * the UI colors (Toolbar, StatusBar, active widget state)
 * and more...
 
+# Support This Project
+If this library is useful to you or your apps, consider supporting its development:
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/jens.muenker)
+
 # Native vs Non-Native Version
 
 I have split this repository into two separate branches:  
